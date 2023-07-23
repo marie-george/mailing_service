@@ -7,12 +7,12 @@
     <div class="card-body">
       <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
-        <input type="submit" class="btn btn-primary" value="{% if object %}Сохранить{% else %}Создать{% endif %}">
+        Уверены, что хотите удалить рассылку "{{ object }}"?
+        <input type="submit" class="btn btn-primary" value="Уверен">
       </form>
     </div>
     <div class="card-footer">
-      <a href="{% url 'mailing:mailing_detail' object.pk %}" class="btn btn-primary">Назад</a>
+      <a href="{% url 'mailing:mailing_list' %}" class="btn btn-primary">Назад</a>
     </div>
   </div>
 </div>

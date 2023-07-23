@@ -20,8 +20,10 @@ class Message(models.Model):
 class Mailing(models.Model):
     header = models.CharField(max_length=150, verbose_name='тема')
     contents = models.TextField(verbose_name='содержание')
-    email = models.CharField(max_length=150, verbose_name='почта', **NULLABLE)
     # message = models.ForeignKey(Message, on_delete = models.CASCADE)
+
+    email = models.CharField(max_length=150, verbose_name='почта', **NULLABLE)
+    # email = models.ForeignKey(Contact, on_delete = models.CASCADE)
     time = models.TimeField(verbose_name='время рассылки')
     intervals = (
         ('D', 'once/day'),
@@ -55,6 +57,16 @@ class Mailing_log(models.Model):
         verbose_name_plural = 'логи'
         ordering = ('server_response',)
 
+
+class Contact(models.Model):
+    first_name = models.CharField(max_length=150, verbose_name='имя')
+    last_name = models.CharField(max_length=150, verbose_name='фамилия')
+    email = models.CharField(max_length=150, verbose_name='почта')
+
+    class Meta:
+        verbose_name = 'контакт'
+        verbose_name_plural = 'контакты'
+        ordering = ('first_name',)
 
 class Blog(models.Model):
     name = models.CharField(max_length=150, verbose_name='наименование')
