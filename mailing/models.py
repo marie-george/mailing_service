@@ -6,7 +6,20 @@ from pytils.translit import slugify
 NULLABLE = {'null': True, 'blank': True}
 
 
+class Message(models.Model):
+    header = models.CharField(max_length=150, verbose_name='тема')
+    contents = models.TextField(verbose_name='содержание')
+
+    class Meta:
+        verbose_name = 'сообщение'
+        verbose_name_plural = 'сообщения'
+        ordering = ('header',)
+
+
 class Mailing(models.Model):
+    header = models.CharField(max_length=150, verbose_name='тема')
+    contents = models.TextField(verbose_name='содержание')
+    # message = models.ForeignKey(Message, on_delete = models.CASCADE)
     time = models.TimeField(verbose_name='время рассылки')
     intervals = (
         ('D', 'once/day'),
@@ -26,16 +39,6 @@ class Mailing(models.Model):
         verbose_name = 'рассылка'
         verbose_name_plural = 'рассылки'
         ordering = ('status',)
-
-
-class Message(models.Model):
-    header = models.CharField(max_length=150, verbose_name='содержание')
-    contents = models.TextField(verbose_name='содержание')
-
-    class Meta:
-        verbose_name = 'сообщение'
-        verbose_name_plural = 'сообщения'
-        ordering = ('header',)
 
 
 class Mailing_log(models.Model):
