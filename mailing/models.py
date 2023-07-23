@@ -2,6 +2,7 @@ from django.db import models
 from django.urls import reverse
 from pytils.translit import slugify
 
+from config import settings
 
 NULLABLE = {'null': True, 'blank': True}
 
@@ -19,6 +20,7 @@ class Message(models.Model):
 class Mailing(models.Model):
     header = models.CharField(max_length=150, verbose_name='тема')
     contents = models.TextField(verbose_name='содержание')
+    email = models.CharField(max_length=150, verbose_name='почта', **NULLABLE)
     # message = models.ForeignKey(Message, on_delete = models.CASCADE)
     time = models.TimeField(verbose_name='время рассылки')
     intervals = (
@@ -34,6 +36,8 @@ class Mailing(models.Model):
         ('I', 'initiated'),
     )
     status = models.CharField(choices=statuses, verbose_name='статус рассылки')
+
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, **NULLABLE, verbose_name='владелец')
 
     class Meta:
         verbose_name = 'рассылка'
