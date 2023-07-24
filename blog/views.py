@@ -32,7 +32,7 @@ class BlogCreateView(generic.CreateView):
 
 class BlogUpdateView(generic.UpdateView):
     model = Blog
-    fields = ('name', 'contents', 'preview')
+    fields = ('name', 'contents', 'preview', 'published')
 
     def get_success_url(self):
         return reverse('blog:blog_detail', kwargs={'slug': self.object.slug})
