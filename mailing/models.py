@@ -62,6 +62,8 @@ class Contact(models.Model):
     last_name = models.CharField(max_length=150, verbose_name='фамилия')
     email = models.CharField(max_length=150, verbose_name='почта')
 
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, **NULLABLE, verbose_name='владелец')
+
     class Meta:
         verbose_name = 'контакт'
         verbose_name_plural = 'контакты'

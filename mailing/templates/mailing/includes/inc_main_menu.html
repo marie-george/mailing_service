@@ -5,6 +5,7 @@
     <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:mailing_create' %}">Создайте рассылку</a>
     <a class="p-2 btn btn-outline-primary" href="{% url 'users:profile' %}">Профиль</a>
     <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:mailing_list' %}">Ваш список рассылок</a>
+    <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:contact_list' %}">Ваш список контактов</a>
     <a class="p-2 btn btn-outline-primary" href="{% url 'users:logout' %}">Выйти</a>
     {% else %}
     <a class="p-2 btn btn-outline-primary" href="{% url 'users:register' %}">Регистрация</a>

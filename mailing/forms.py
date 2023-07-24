@@ -1,6 +1,6 @@
 from django import forms
 
-from mailing.models import Mailing
+from mailing.models import Mailing, Contact
 
 
 class FormStyleMixin:
@@ -15,4 +15,11 @@ class MailingForm(FormStyleMixin, forms.ModelForm):
 
     class Meta:
         model = Mailing
+        exclude = ('owner',)
+
+
+class ContactForm(FormStyleMixin, forms.ModelForm):
+
+    class Meta:
+        model = Contact
         exclude = ('owner',)

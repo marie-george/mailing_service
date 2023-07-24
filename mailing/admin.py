@@ -19,7 +19,7 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(Contact)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('id', 'first_name', 'last_name', 'email')
+    list_display = ('id', 'first_name', 'last_name', 'email', 'owner')
     search_fields = ('last_name', 'email')
     list_filter = ('email',)
 
