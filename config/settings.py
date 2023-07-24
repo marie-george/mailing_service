@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 import os
+from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -160,3 +161,10 @@ CACHES = {
 
 CELERY_BROKER_URL = 'redis://localhost:6379/0'  # URL-адрес брокера сообщений, например Redis
 CELERY_RESULT_BACKEND = 'redis://localhost:6379'  # URL-адрес брокера результатов, также Redis
+
+CELERY_BEAT_SCHEDULE = {
+    'task-name': {
+        'task': 'mailing.tasks.my_task',  # Путь к задаче
+        'schedule': timedelta(minutes=10),  # Расписание выполнения задачи (например, каждые 10 минут)
+    },
+}
