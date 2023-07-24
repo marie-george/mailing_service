@@ -3,11 +3,11 @@ from django.views import generic
 from django.urls import reverse, reverse_lazy
 
 from blog.models import Blog
-from mailing.models import Mailing, Contact
-from mailing.forms import MailingForm, ContactForm
+from mailing.models import Mailing, Contact, Message
+from mailing.forms import MailingForm, ContactForm, MessageForm
 from mailing.tasks import send_email
 
-
+# Домашняя страница ========================================================================================
 class HomeView(generic.TemplateView):
     template_name = 'mailing/home.html'
     extra_context = {
@@ -15,7 +15,7 @@ class HomeView(generic.TemplateView):
         'object_list': Blog.objects.all()[:4],
     }
 
-
+# Рассылка ===============================================================================================
 class MailingCreateView(generic.CreateView):
     model = Mailing
     form_class = MailingForm
@@ -24,7 +24,7 @@ class MailingCreateView(generic.CreateView):
     def form_valid(self, form):
         self.object = form.save()
         self.object.owner = self.request.user
-        send_email.delay(form.instance.header, form.instance.contents, form.instance.email)
+        # send_email.delay(form.instance.header, form.instance.contents, form.instance.email)
         self.object.save()
 
         return super().form_valid(form)
@@ -37,7 +37,7 @@ class MailingUpdateView(generic.UpdateView):
 
     def form_valid(self, form):
         self.object = form.save()
-        send_email.delay(form.instance.header, form.instance.contents, form.instance.email)
+        # send_email.delay(form.instance.header, form.instance.contents, form.instance.email)
         self.object.save()
 
         return super().form_valid(form)
@@ -55,7 +55,7 @@ class MailingDetailView(generic.DetailView):
 class MailingListView(generic.ListView):
     model = Mailing
 
-
+# Контакты ==================================================================================================
 class ContactListView(generic.ListView):
     model = Contact
 
@@ -86,3 +86,29 @@ class ContactUpdateView(generic.UpdateView):
 class ContactDeleteView(generic.DeleteView):
     model = Contact
     success_url = reverse_lazy('mailing:contact_list')
+
+
+# Сообщения ===============================================================================================
+class MessageListView(generic.ListView):
+    model = Message
+
+
+class MessageDetailView(generic.DetailView):
+    model = Message
+
+
+class MessageCreateView(generic.CreateView):
+    model = Message
+    form_class = MessageForm
+    success_url = reverse_lazy('mailing:message_list')
+
+
+class MessageUpdateView(generic.UpdateView):
+    model = Message
+    fields = ('header', 'contents')
+    success_url = reverse_lazy('mailing:message_list')
+
+
+class MessageDeleteView(generic.DeleteView):
+    model = Message
+    success_url = reverse_lazy('mailing:message_list')
