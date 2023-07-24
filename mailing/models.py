@@ -16,34 +16,17 @@ class Message(models.Model):
         ordering = ('header',)
 
 
-class Mailing(models.Model):
-    header = models.CharField(max_length=150, verbose_name='тема')
-    contents = models.TextField(verbose_name='содержание')
-    # message = models.ForeignKey(Message, on_delete = models.CASCADE)
-
-    email = models.CharField(max_length=150, verbose_name='почта', **NULLABLE)
-    # email = models.ForeignKey(Contact, on_delete = models.CASCADE)
-    time = models.TimeField(verbose_name='время рассылки')
-    intervals = (
-        ('D', 'once/day'),
-        ('W', 'once/week'),
-        ('M', 'once/month'),
-    )
-    interval = models.CharField(choices=intervals, verbose_name='периодичность')
-    # статус рассылки: завершена, создана, запущена
-    statuses = (
-        ('F', 'finished'),
-        ('C', 'created'),
-        ('I', 'initiated'),
-    )
-    status = models.CharField(choices=statuses, verbose_name='статус рассылки')
+class Contact(models.Model):
+    first_name = models.CharField(max_length=150, verbose_name='имя')
+    last_name = models.CharField(max_length=150, verbose_name='фамилия')
+    email = models.CharField(max_length=150, verbose_name='почта')
 
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, **NULLABLE, verbose_name='владелец')
 
     class Meta:
-        verbose_name = 'рассылка'
-        verbose_name_plural = 'рассылки'
-        ordering = ('status',)
+        verbose_name = 'контакт'
+        verbose_name_plural = 'контакты'
+        ordering = ('first_name',)
 
 
 class Mailing_log(models.Model):
@@ -57,16 +40,28 @@ class Mailing_log(models.Model):
         ordering = ('server_response',)
 
 
-class Contact(models.Model):
-    first_name = models.CharField(max_length=150, verbose_name='имя')
-    last_name = models.CharField(max_length=150, verbose_name='фамилия')
-    email = models.CharField(max_length=150, verbose_name='почта')
+class Mailing(models.Model):
+    message = models.ManyToManyField(Message)
+    contact = models.ManyToManyField(Contact)
+    mailing_log = models.ManyToManyField(Mailing_log)
+    time = models.TimeField(verbose_name='время рассылки')
+    intervals = (
+        ('раз/день', 'раз/день'),
+        ('раз/неделя', 'раз/неделя'),
+        ('раз/месяц', 'раз/месяц'),
+    )
+    interval = models.CharField(choices=intervals, verbose_name='периодичность')
+    statuses = (
+        ('завершена', 'завершена'),
+        ('создана', 'создана'),
+        ('запущена', 'запущена'),
+    )
+    status = models.CharField(choices=statuses, verbose_name='статус рассылки')
 
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, **NULLABLE, verbose_name='владелец')
 
     class Meta:
-        verbose_name = 'контакт'
-        verbose_name_plural = 'контакты'
-        ordering = ('first_name',)
-
+        verbose_name = 'рассылка'
+        verbose_name_plural = 'рассылки'
+        ordering = ('status',)
 
