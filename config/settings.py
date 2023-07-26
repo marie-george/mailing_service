@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'mailing',
     'users',
     'blog',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -162,9 +163,9 @@ CACHES = {
 CELERY_BROKER_URL = 'redis://localhost:6379/0'  # URL-адрес брокера сообщений, например Redis
 CELERY_RESULT_BACKEND = 'redis://localhost:6379'  # URL-адрес брокера результатов, также Redis
 
-CELERY_BEAT_SCHEDULE = {
-    'task-name': {
-        'task': 'mailing.tasks.my_task',  # Путь к задаче
-        'schedule': timedelta(minutes=10),  # Расписание выполнения задачи (например, каждые 10 минут)
-    },
-}
+# CELERY_BEAT_SCHEDULE = {
+#     'task-name': {
+#         'task': 'mailing.tasks.my_task',  # Путь к задаче
+#         'schedule': timedelta(minutes=10),  # Расписание выполнения задачи (например, каждые 10 минут)
+#     },
+# }

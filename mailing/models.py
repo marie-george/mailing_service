@@ -41,9 +41,12 @@ class Mailing_log(models.Model):
 
 
 class Mailing(models.Model):
-    message = models.ManyToManyField(Message, verbose_name='сообщение')
-    contact = models.ManyToManyField(Contact, verbose_name='контакт')
-    mailing_log = models.ManyToManyField(Mailing_log, verbose_name='логи рассылки')
+    # message = models.ManyToManyField(Message, verbose_name='сообщение')
+    # contact = models.ManyToManyField(Contact, verbose_name='контакт')
+    # mailing_log = models.ManyToManyField(Mailing_log, verbose_name='логи рассылки')
+    email = models.CharField(verbose_name='почта', **NULLABLE)
+    header = models.CharField(verbose_name='тема', **NULLABLE)
+    contents = models.TextField(verbose_name='содержание', **NULLABLE)
     time = models.TimeField(verbose_name='время рассылки')
     intervals = (
         ('раз/день', 'раз/день'),

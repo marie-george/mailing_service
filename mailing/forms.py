@@ -15,7 +15,7 @@ class MailingForm(FormStyleMixin, forms.ModelForm):
 
     class Meta:
         model = Mailing
-        exclude = ('owner', 'mailing_log')
+        exclude = ('owner',)
 
 
 class ContactForm(FormStyleMixin, forms.ModelForm):

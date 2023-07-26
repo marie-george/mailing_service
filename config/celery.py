@@ -14,9 +14,11 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 # Автоматическое обнаружение и регистрация задач из файлов tasks.py в приложениях Django
 app.autodiscover_tasks()
 
-# app.conf.beat_schedule = {
-#     'periodical-emails': {
-#         'task': 'mailing.tasks.send_email',
-#         'schedule': crontab(minute='*/5')
-#     }
-# }
+
+app.conf.beat_schedule = {
+    'periodical-emails': {
+        'task': 'mailing.tasks.send_email',
+        'schedule': crontab(minute='*/3'),
+        # 'args': (16, 16)
+    }
+}
