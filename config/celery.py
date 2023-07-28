@@ -19,6 +19,6 @@ app.conf.beat_schedule = {
     'periodical-emails': {
         'task': 'mailing.tasks.send_email',
         'schedule': crontab(minute='*/3'),
-        # 'args': (16, 16)
+        'args': (16, 16)
     }
 }

@@ -4,14 +4,19 @@
 
 {% include 'mailing/includes/inc_main_menu.html' %}
 
-<body>
+
 <p>
 <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
     <h1 class="display-5">Привет, пользователь!</h1>
 </div>
 <p>
-</body>
 
+
+<div class="row">
+    <li>{{mailing_count}}</li>
+    <li>{{active_mailing_count}}</li>
+    <li>{{unique_client_count}}</li>
+</div>
 
 <div class="row">
     {% for object in object_list %}

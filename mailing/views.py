@@ -1,3 +1,4 @@
+from celery import Celery
 from django.shortcuts import render
 from django.views import generic
 from django.urls import reverse, reverse_lazy
@@ -6,14 +7,20 @@ from blog.models import Blog
 from mailing.models import Mailing, Contact, Message
 from mailing.forms import MailingForm, ContactForm, MessageForm
 from mailing.service import send
-from mailing.tasks import send_email
+# from mailing.tasks import send_email
+from random import choices
+
+app = Celery()
 
 # Домашняя страница ========================================================================================
 class HomeView(generic.TemplateView):
     template_name = 'mailing/home.html'
     extra_context = {
         'title': 'Главная страница',
-        'object_list': Blog.objects.all()[:4],
+        'object_list': choices(Blog.objects.all(), k=3),
+        'mailing_count': Mailing.objects.count(),
+        'active_mailing_count': Mailing.objects.filter(status='запущена').count(),
+        'unique_client_count': len({contact.email for contact in Contact.objects.all()})
     }
 
 # Рассылка ===============================================================================================
@@ -22,11 +29,13 @@ class MailingCreateView(generic.CreateView):
     form_class = MailingForm
     success_url = reverse_lazy('mailing:mailing_list')
 
+
+    # @app.on_after_configure.connect
     def form_valid(self, form):
         self.object = form.save()
         self.object.owner = self.request.user
         # send(form.instance.header, form.instance.contents, form.instance.email)
-        send_email.delay(form.instance.header, form.instance.contents, form.instance.email)
+        # end_semail.delay(form.instance.header, form.instance.contents, form.instance.email)
         self.object.save()
 
         return super().form_valid(form)
