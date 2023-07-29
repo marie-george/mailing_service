@@ -12,6 +12,8 @@ class Message(models.Model):
     header = models.CharField(max_length=150, verbose_name='тема')
     contents = models.TextField(verbose_name='содержание')
 
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, **NULLABLE, verbose_name='владелец')
+
     class Meta:
         verbose_name = 'сообщение'
         verbose_name_plural = 'сообщения'

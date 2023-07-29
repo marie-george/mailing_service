@@ -1,11 +1,13 @@
 from celery import Celery
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import render
 from django.views import generic
 from django.urls import reverse, reverse_lazy
 
 from blog.models import Blog
 from mailing.models import Mailing, Contact, Message
-from mailing.forms import MailingForm, ContactForm, MessageForm
+from mailing.forms import MailingForm, ContactForm, MessageForm, MailingListForm, ContactListForm, MessageListForm
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from mailing.service import send
 # from mailing.tasks import send_email
 from random import choices
@@ -23,8 +25,9 @@ class HomeView(generic.TemplateView):
         'unique_client_count': len({contact.email for contact in Contact.objects.all()})
     }
 
+
 # Рассылка ===============================================================================================
-class MailingCreateView(generic.CreateView):
+class MailingCreateView(LoginRequiredMixin, generic.CreateView):
     model = Mailing
     form_class = MailingForm
     success_url = reverse_lazy('mailing:mailing_list')
@@ -41,10 +44,16 @@ class MailingCreateView(generic.CreateView):
         return super().form_valid(form)
 
 
-class MailingUpdateView(generic.UpdateView):
+class MailingUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = Mailing
     form_class = MailingForm
     success_url = reverse_lazy('mailing:mailing_list')
+
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
+        if self.object.owner != self.request.user and not self.request.user.is_staff:
+            raise PermissionDenied()
+        return self.object
 
     def form_valid(self, form):
         self.object = form.save()
@@ -54,28 +63,57 @@ class MailingUpdateView(generic.UpdateView):
         return super().form_valid(form)
 
 
-class MailingDeleteView(generic.DeleteView):
+class MailingDeleteView(LoginRequiredMixin, generic.DeleteView):
     model = Mailing
     success_url = reverse_lazy('mailing:mailing_list')
 
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
+        if self.object.owner != self.request.user and not self.request.user.is_staff:
+            raise PermissionDenied()
+        return self.object
 
-class MailingDetailView(generic.DetailView):
+
+class MailingDetailView(LoginRequiredMixin, generic.DetailView):
     model = Mailing
 
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
+        if self.object.owner != self.request.user and not self.request.user.is_staff:
+            raise PermissionDenied()
+        return self.object
 
-class MailingListView(generic.ListView):
+
+class MailingListView(LoginRequiredMixin, generic.ListView):
     model = Mailing
+    form_class = MailingListForm
+    template_name = 'mailing/mailing_list.html'
+
+    def get_queryset(self):
+        return super().get_queryset().filter(owner=self.request.user)
+
 
 # Контакты ==================================================================================================
-class ContactListView(generic.ListView):
+class ContactListView(LoginRequiredMixin, generic.ListView):
+    model = Contact
+    form_class = ContactListForm
+    template_name = 'mailing/contact_list.html'
+
+    def get_queryset(self):
+        return super().get_queryset().filter(owner=self.request.user)
+
+
+class ContactDetailView(LoginRequiredMixin, generic.DetailView):
     model = Contact
 
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
+        if self.object.owner != self.request.user and not self.request.user.is_staff:
+            raise PermissionDenied()
+        return self.object
 
-class ContactDetailView(generic.DetailView):
-    model = Contact
 
-
-class ContactCreateView(generic.CreateView):
+class ContactCreateView(LoginRequiredMixin, generic.CreateView):
     model = Contact
     form_class = ContactForm
     success_url = reverse_lazy('mailing:contact_list')
@@ -88,38 +126,80 @@ class ContactCreateView(generic.CreateView):
         return super().form_valid(form)
 
 
-class ContactUpdateView(generic.UpdateView):
+class ContactUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = Contact
     fields = ('first_name', 'last_name', 'email')
     success_url = reverse_lazy('mailing:contact_list')
 
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
+        if self.object.owner != self.request.user and not self.request.user.is_staff:
+            raise PermissionDenied()
+        return self.object
 
-class ContactDeleteView(generic.DeleteView):
+
+class ContactDeleteView(LoginRequiredMixin, generic.DeleteView):
     model = Contact
     success_url = reverse_lazy('mailing:contact_list')
 
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
+        if self.object.owner != self.request.user and not self.request.user.is_staff:
+            raise PermissionDenied()
+        return self.object
+
 
 # Сообщения ===============================================================================================
-class MessageListView(generic.ListView):
+class MessageListView(LoginRequiredMixin, generic.ListView):
+    model = Message
+    form_class = MessageListForm
+    template_name = 'mailing/message_list.html'
+
+    def get_queryset(self):
+        return super().get_queryset().filter(owner=self.request.user)
+
+
+class MessageDetailView(LoginRequiredMixin, generic.DetailView):
     model = Message
 
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
+        if self.object.owner != self.request.user and not self.request.user.is_staff:
+            raise PermissionDenied()
+        return self.object
 
-class MessageDetailView(generic.DetailView):
-    model = Message
 
-
-class MessageCreateView(generic.CreateView):
+class MessageCreateView(LoginRequiredMixin, generic.CreateView):
     model = Message
     form_class = MessageForm
     success_url = reverse_lazy('mailing:message_list')
 
+    def form_valid(self, form):
+        self.object = form.save()
+        self.object.owner = self.request.user
+        self.object.save()
 
-class MessageUpdateView(generic.UpdateView):
+        return super().form_valid(form)
+
+
+class MessageUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = Message
     fields = ('header', 'contents')
     success_url = reverse_lazy('mailing:message_list')
 
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
+        if self.object.owner != self.request.user and not self.request.user.is_staff:
+            raise PermissionDenied()
+        return self.object
 
-class MessageDeleteView(generic.DeleteView):
+
+class MessageDeleteView(LoginRequiredMixin, generic.DeleteView):
     model = Message
     success_url = reverse_lazy('mailing:message_list')
+
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
+        if self.object.owner != self.request.user and not self.request.user.is_staff:
+            raise PermissionDenied()
+        return self.object
