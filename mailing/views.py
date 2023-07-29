@@ -5,7 +5,7 @@ from django.views import generic
 from django.urls import reverse, reverse_lazy
 
 from blog.models import Blog
-from mailing.models import Mailing, Contact, Message
+from mailing.models import Mailing, Contact, Message, MailingLog
 from mailing.forms import MailingForm, ContactForm, MessageForm, MailingListForm, ContactListForm, MessageListForm
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from mailing.service import send
@@ -13,6 +13,7 @@ from mailing.service import send
 from random import choices
 
 app = Celery()
+
 
 # Домашняя страница ========================================================================================
 class HomeView(generic.TemplateView):
@@ -203,3 +204,23 @@ class MessageDeleteView(LoginRequiredMixin, generic.DeleteView):
         if self.object.owner != self.request.user and not self.request.user.is_staff:
             raise PermissionDenied()
         return self.object
+
+
+# Логи рассылки =============================================================================================
+class MailingLogDetailView(LoginRequiredMixin, generic.DetailView):
+    model = MailingLog
+
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
+        if self.object.owner != self.request.user and not self.request.user.is_staff:
+            raise PermissionDenied()
+        return self.object
+
+
+class MailingLogListView(LoginRequiredMixin, generic.ListView):
+    model = MailingLog
+    form_class = MailingListForm
+    template_name = 'mailing/mailing_log_list.html'
+
+    def get_queryset(self):
+        return super().get_queryset().filter(owner=self.request.user)

@@ -1,10 +1,9 @@
-from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.views import generic
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.urls import reverse, reverse_lazy
+from django.views import generic
 
-
+from blog.forms import BlogForm
 from blog.models import Blog
-from blog.templates.blog.forms import BlogForm
 
 
 class BlogListView(generic.ListView):

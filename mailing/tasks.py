@@ -8,7 +8,7 @@ from django_celery_beat.models import IntervalSchedule, PeriodicTask
 
 from config import settings
 from config.celery import app
-from mailing.models import Mailing, Mailing_log
+from mailing.models import Mailing, MailingLog
 from mailing.service import send
 from celery.schedules import crontab
 
@@ -56,7 +56,7 @@ def check_new_tasks(self, period="from db"):
         its_send_time = now.hour == mailing.time.hour
         period = intervals[mailing.intervals]
         if (delta == 0 or delta > period) and time_delta > 0 and its_send_time:
-            log = Mailing_log(time=now, mailing=mailing)
+            log = MailingLog(time=now, mailing=mailing)
             try:
                 send_mail(
                     subject=mailing.message.header,

@@ -39,7 +39,7 @@ class Contact(models.Model):
         return self.email
 
 
-class Mailing_log(models.Model):
+class MailingLog(models.Model):
     time = models.DateTimeField(verbose_name='дата и время')
     attempt = models.BooleanField(default=True, verbose_name='статус попытки')
     server_response = models.BooleanField(default=True, verbose_name='ответ сервера')
@@ -54,7 +54,7 @@ class Mailing_log(models.Model):
 class Mailing(models.Model):
     message = models.ForeignKey(Message, verbose_name='сообщение', on_delete=models.PROTECT)
     contacts = models.ManyToManyField(Contact, verbose_name='контакты')
-    # mailing_log = models.ManyToManyField(Mailing_log, verbose_name='логи рассылки')
+    # mailing_log = models.ManyToManyField(MailingLog, verbose_name='логи рассылки')
     # email = models.CharField(verbose_name='почта', **NULLABLE)
     # header = models.CharField(verbose_name='тема', **NULLABLE)
     # contents = models.TextField(verbose_name='содержание', **NULLABLE)

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from mailing.models import Mailing, Contact, Message, Mailing_log
+from mailing.models import Mailing, Contact, Message, MailingLog
 
 
 @admin.register(Message)
@@ -25,8 +25,8 @@ class ContactAdmin(admin.ModelAdmin):
     list_filter = ('email',)
 
 
-@admin.register(Mailing_log)
-class Mailing_logAdmin(admin.ModelAdmin):
+@admin.register(MailingLog)
+class MailingLogAdmin(admin.ModelAdmin):
     list_display = ('id', 'time', 'attempt', 'server_response')
     search_fields = ('time',)
     list_filter = ('time',)
