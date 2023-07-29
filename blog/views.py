@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.views import generic
 from django.urls import reverse, reverse_lazy
 
@@ -24,22 +25,25 @@ class BlogDetailView(generic.DetailView):
         return views
 
 
-class BlogCreateView(generic.CreateView):
+class BlogCreateView(PermissionRequiredMixin, generic.CreateView):
     model = Blog
+    permission_required = "blog.add_blog"
     form_class = BlogForm
     success_url = reverse_lazy('blog:blog_list')
 
 
-class BlogUpdateView(generic.UpdateView):
+class BlogUpdateView(PermissionRequiredMixin, generic.UpdateView):
     model = Blog
+    permission_required = "blog.change_blog"
     fields = ('name', 'contents', 'preview', 'published')
 
     def get_success_url(self):
         return reverse('blog:blog_detail', kwargs={'slug': self.object.slug})
 
 
-class BlogDeleteView(generic.DeleteView):
+class BlogDeleteView(PermissionRequiredMixin, generic.DeleteView):
     model = Blog
+    permission_required = "blog.delete_blog"
     success_url = reverse_lazy('catalog:blog_list')
 
 
