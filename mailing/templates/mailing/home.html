@@ -13,11 +13,11 @@
 
 
 <div class="row">
-    <li>{{mailing_count}}</li>
-    <li>{{active_mailing_count}}</li>
-    <li>{{unique_client_count}}</li>
+    <li>Количество рассылок всего: {{mailing_count}}</li>
+    <li>Количество активных рассылок: {{active_mailing_count}}</li>
+    <li>Количество уникальных клиентов для рассылок: {{unique_client_count}}</li>
 </div>
-
+<p>
 <div class="row">
     {% for object in object_list %}
     {% include 'blog/includes/inc_blog_card.html' %}
