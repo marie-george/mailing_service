@@ -45,6 +45,8 @@ class MailingLog(models.Model):
     server_response = models.BooleanField(default=True, verbose_name='ответ сервера')
     # mailing = models.ForeignKey('Mailing', on_delete=models.CASCADE)
 
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, **NULLABLE, verbose_name='владелец')
+
     class Meta:
         verbose_name = 'лог'
         verbose_name_plural = 'логи'
