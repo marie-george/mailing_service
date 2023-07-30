@@ -1,45 +1,77 @@
-from celery import Celery
 from django.core.exceptions import PermissionDenied
-from django.shortcuts import render
 from django.views import generic
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse_lazy
+from django.conf import settings
+from django.core.cache import cache
 
 from blog.models import Blog
 from mailing.models import Mailing, Contact, Message, MailingLog
 from mailing.forms import MailingForm, ContactForm, MessageForm, MailingListForm, ContactListForm, MessageListForm
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from mailing.service import send
-# from mailing.tasks import send_email
+from django.contrib.auth.mixins import LoginRequiredMixin
 from random import choices
-
-app = Celery()
 
 
 # Домашняя страница ========================================================================================
 class HomeView(generic.TemplateView):
     template_name = 'mailing/home.html'
-    extra_context = {
-        'title': 'Главная страница',
-        'object_list': choices(Blog.objects.all(), k=3),
-        'mailing_count': Mailing.objects.count(),
-        'active_mailing_count': Mailing.objects.filter(status='запущена').count(),
-        'unique_client_count': len({contact.email for contact in Contact.objects.all()})
-    }
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        context_data['title'] = 'Главная страница'
+        try:
+            context_data['object_list'] = choices(Blog.objects.all(), k=3)
+        except:
+            context_data['object_list'] = []
+        mailing_count_key = 'mailing_count'
+        active_mailing_count_key = 'active_mailing_count'
+        unique_client_count_key = 'unique_client_count'
+        if settings.CACHE_ENABLED:
+            mailing_count = cache.get(mailing_count_key)
+            active_mailing_count = cache.get(active_mailing_count_key)
+            unique_client_count = cache.get(unique_client_count_key)
+            try:
+                if mailing_count is None:
+                    mailing_count = Mailing.objects.count()
+                    cache.set(mailing_count_key, mailing_count)
+                if active_mailing_count is None:
+                    active_mailing_count = Mailing.objects.filter(status='запущена').count()
+                    cache.set(active_mailing_count_key, active_mailing_count)
+                if unique_client_count is None:
+                    unique_client_count = len({contact.email for contact in Contact.objects.all()})
+                    cache.set(unique_client_count_key, unique_client_count)
+            except:
+                mailing_count = 0
+                active_mailing_count = 0
+                unique_client_count = 0
+        else:
+            try:
+                mailing_count = Mailing.objects.count()
+                active_mailing_count = Mailing.objects.filter(status='запущена').count()
+                unique_client_count = len({contact.email for contact in Contact.objects.all()})
+            except:
+                mailing_count = 0
+                active_mailing_count = 0
+                unique_client_count = 0
+        context_data[mailing_count_key] = mailing_count
+        context_data[active_mailing_count_key] = active_mailing_count
+        context_data[unique_client_count_key] = unique_client_count
+
+        return context_data
 
 
 # Рассылка ===============================================================================================
 class MailingCreateView(LoginRequiredMixin, generic.CreateView):
     model = Mailing
-    form_class = MailingForm
     success_url = reverse_lazy('mailing:mailing_list')
 
+    def get_form(self):
+        form_class = MailingForm(user=self.request.user)
+        return form_class
 
-    # @app.on_after_configure.connect
+
     def form_valid(self, form):
         self.object = form.save()
         self.object.owner = self.request.user
-        # send(form.instance.header, form.instance.contents, form.instance.email)
-        # end_semail.delay(form.instance.header, form.instance.contents, form.instance.email)
         self.object.save()
 
         return super().form_valid(form)
@@ -50,6 +82,14 @@ class MailingUpdateView(LoginRequiredMixin, generic.UpdateView):
     form_class = MailingForm
     success_url = reverse_lazy('mailing:mailing_list')
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        if self.request.user.groups.filter(name="managers"):
+            kwargs['manager'] = True
+        else:
+            kwargs['manager'] = False
+        return kwargs
+
     def get_object(self, queryset=None):
         self.object = super().get_object(queryset)
         if self.object.owner != self.request.user and not self.request.user.is_staff:
@@ -58,7 +98,6 @@ class MailingUpdateView(LoginRequiredMixin, generic.UpdateView):
 
     def form_valid(self, form):
         self.object = form.save()
-        # send_email.delay(form.instance.header, form.instance.contents, form.instance.email)
         self.object.save()
 
         return super().form_valid(form)
@@ -91,6 +130,8 @@ class MailingListView(LoginRequiredMixin, generic.ListView):
     template_name = 'mailing/mailing_list.html'
 
     def get_queryset(self):
+        if self.request.user.is_staff:
+            return super().get_queryset()
         return super().get_queryset().filter(owner=self.request.user)
 
 

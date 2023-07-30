@@ -1,8 +1,8 @@
 <div class="card" style="width: 18rem;">
     <div class="card-body">
-        <p class="card-text">Тема: {{ object.header }}</p>
-        <p class="card-text">Содержание: {{ object.contents }}</p>
-        <p class="card-text">Почта: {{ object.email }}</p>
+        <p class="card-text">Тема: {{ object.message.header }}</p>
+        <p class="card-text">Содержание: {{ object.message.contents }}</p>
+        <p class="card-text">Почта: {{ object.emails }}</p>
         <p class="card-text">Время рассылки: {{ object.time }}</p>
         <p class="card-text">Время последней отправки: {{ object.last_sent }}</p>
         <p class="card-text">Время начала рассылки: {{ object.start_time }}</p>

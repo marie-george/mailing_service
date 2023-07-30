@@ -151,7 +151,7 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
 TEMP_EMAIL_DIR = BASE_DIR / 'mails'
 
-CACHE_ENABLED = os.getenv('CACHE_ENABLED') == 'True'
+CACHE_ENABLED = os.getenv('CACHE_ENABLED') == 'False'
 
 CACHES = {
     'default': {

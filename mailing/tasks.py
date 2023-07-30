@@ -7,15 +7,7 @@ from django.core.mail import send_mail
 from django_celery_beat.models import IntervalSchedule, PeriodicTask
 
 from config import settings
-from config.celery import app
 from mailing.models import Mailing, MailingLog
-from mailing.service import send
-from celery.schedules import crontab
-
-
-# @app.task
-# def send_email(header, contents, email):
-#     send(header, contents, email)
 
 
 app = Celery()

@@ -1,5 +1,3 @@
-from django.utils import timezone
-
 from django.db import models
 
 
@@ -43,7 +41,6 @@ class MailingLog(models.Model):
     time = models.DateTimeField(verbose_name='дата и время')
     attempt = models.BooleanField(default=True, verbose_name='статус попытки')
     server_response = models.BooleanField(default=True, verbose_name='ответ сервера')
-    # mailing = models.ForeignKey('Mailing', on_delete=models.CASCADE)
 
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, **NULLABLE, verbose_name='владелец')
 
@@ -56,14 +53,8 @@ class MailingLog(models.Model):
 class Mailing(models.Model):
     message = models.ForeignKey(Message, verbose_name='сообщение', on_delete=models.PROTECT)
     contacts = models.ManyToManyField(Contact, verbose_name='контакты')
-    # mailing_log = models.ManyToManyField(MailingLog, verbose_name='логи рассылки')
-    # email = models.CharField(verbose_name='почта', **NULLABLE)
-    # header = models.CharField(verbose_name='тема', **NULLABLE)
-    # contents = models.TextField(verbose_name='содержание', **NULLABLE)
     time = models.TimeField(verbose_name='время рассылки')
-    # last_sent = models.TimeField(verbose_name='время последней отправки', default=None, **NULLABLE)
     last_sent = models.DateTimeField(verbose_name='время последней отправки', default=None, **NULLABLE)
-    # stop_time = models.DateTimeField(verbose_name='время окончания рассылки', default=None, **NULLABLE)
     finish_time = models.DateTimeField(verbose_name='время окончания рассылки', default=None, **NULLABLE)
     start_time = models.DateTimeField(verbose_name='время начала рассылки', default=None, **NULLABLE)
     intervals = (
@@ -80,6 +71,10 @@ class Mailing(models.Model):
     status = models.CharField(choices=statuses, default='создана', verbose_name='статус рассылки')
 
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, **NULLABLE, verbose_name='владелец')
+
+    @property
+    def emails(self):
+        return ', '.join([contact.email for contact in self.contacts.all()])
 
     class Meta:
         verbose_name = 'рассылка'

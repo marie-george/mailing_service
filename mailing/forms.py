@@ -13,14 +13,21 @@ class FormStyleMixin:
 
 class MailingForm(FormStyleMixin, forms.ModelForm):
 
+    def __init__(self, user=None, **kwargs):
+        self.manager = kwargs.pop('manager')
+        super().__init__(**kwargs)
+        if self.manager:
+            for field_name in self.fields:
+                if field_name in ('status',):
+                    continue
+                self.fields[field_name].disabled = True
+        if user:
+            self.fields['contacts'] = forms.ModelMultipleChoiceField(queryset=Contact.objects.filter(owner=user))
+
+
     class Meta:
         model = Mailing
-        exclude = ('owner',)
-
-    def __init__(self, user=None, **kwargs):
-        super(MailingForm, self).__init__(**kwargs)
-        if user:
-            self.fields['contact'].queryset = Contact.objects.filter(user=user)
+        exclude = ('owner', 'last_sent')
 
 
 class ContactForm(FormStyleMixin, forms.ModelForm):
