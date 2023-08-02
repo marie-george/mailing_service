@@ -68,6 +68,14 @@ class MailingCreateView(LoginRequiredMixin, generic.CreateView):
         form_class = MailingForm(user=self.request.user)
         return form_class
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        if self.request.user.groups.filter(name="managers"):
+            kwargs['manager'] = True
+        else:
+            kwargs['manager'] = False
+        return kwargs
+
 
     def form_valid(self, form):
         self.object = form.save()

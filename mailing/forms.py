@@ -14,7 +14,10 @@ class FormStyleMixin:
 class MailingForm(FormStyleMixin, forms.ModelForm):
 
     def __init__(self, user=None, **kwargs):
-        self.manager = kwargs.pop('manager')
+        if 'manager' in kwargs:
+            self.manager = kwargs.pop('manager')
+        else:
+            self.manager = None
         super().__init__(**kwargs)
         if self.manager:
             for field_name in self.fields:
