@@ -63,19 +63,16 @@ class HomeView(generic.TemplateView):
 class MailingCreateView(LoginRequiredMixin, generic.CreateView):
     model = Mailing
     success_url = reverse_lazy('mailing:mailing_list')
-
-    def get_form(self):
-        form_class = MailingForm(user=self.request.user)
-        return form_class
+    form_class = MailingForm
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
         if self.request.user.groups.filter(name="managers"):
             kwargs['manager'] = True
         else:
             kwargs['manager'] = False
         return kwargs
-
 
     def form_valid(self, form):
         self.object = form.save()
@@ -92,6 +89,7 @@ class MailingUpdateView(LoginRequiredMixin, generic.UpdateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
         if self.request.user.groups.filter(name="managers"):
             kwargs['manager'] = True
         else:

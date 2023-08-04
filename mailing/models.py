@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 
 
@@ -53,10 +55,10 @@ class MailingLog(models.Model):
 class Mailing(models.Model):
     message = models.ForeignKey(Message, verbose_name='сообщение', on_delete=models.PROTECT)
     contacts = models.ManyToManyField(Contact, verbose_name='контакты')
-    time = models.TimeField(verbose_name='время рассылки')
+    time = models.TimeField(verbose_name='время рассылки', default=datetime.time(8,00))
     last_sent = models.DateTimeField(verbose_name='время последней отправки', default=None, **NULLABLE)
-    finish_time = models.DateTimeField(verbose_name='время окончания рассылки', default=None, **NULLABLE)
-    start_time = models.DateTimeField(verbose_name='время начала рассылки', default=None, **NULLABLE)
+    finish_time = models.DateTimeField(verbose_name='дата и время окончания рассылки в формате ДД.ММ.ГГГГ ЧЧ:ММ', default=None, **NULLABLE)
+    start_time = models.DateTimeField(verbose_name='дата и время начала рассылки в формате ДД.ММ.ГГГГ ЧЧ:ММ', default=None, **NULLABLE)
     intervals = (
         ('раз/день', 'раз/день'),
         ('раз/неделя', 'раз/неделя'),
